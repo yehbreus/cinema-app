@@ -5,6 +5,7 @@ import cinema.dao.ShoppingCartDao;
 import cinema.exception.DataProcessingException;
 import cinema.model.ShoppingCart;
 import cinema.model.User;
+import java.util.Optional;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -17,7 +18,7 @@ public class ShoppingCartDaoImpl extends AbstractDao<ShoppingCart> implements Sh
     }
 
     @Override
-    public ShoppingCart getByUser(User user) {
+    public Optional<ShoppingCart> getByUser(User user) {
         try (Session session = factory.openSession()) {
             Query<ShoppingCart> getByUser = session.createQuery(
                     "SELECT DISTINCT sc FROM ShoppingCart sc "
@@ -27,7 +28,7 @@ public class ShoppingCartDaoImpl extends AbstractDao<ShoppingCart> implements Sh
                             + "left join fetch ms.movie "
                             + "WHERE sc.user = :user", ShoppingCart.class);
             getByUser.setParameter("user", user);
-            return getByUser.getSingleResult();
+            return Optional.of(getByUser.getSingleResult());
         } catch (Exception e) {
             throw new DataProcessingException("Not found shopping cart for user " + user, e);
         }
